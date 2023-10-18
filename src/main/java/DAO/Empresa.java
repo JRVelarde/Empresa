@@ -16,25 +16,59 @@ public class Empresa {
         this.connection = connection;
     }
 
+    public void crearTablaDepartamento(Departamento departamento){
+        String sql = "CREATE TABLE IF NOT EXISTS departamento (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, jefe INTEGER)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.executeUpdate();
+            System.out.println("Tabla creada correctamente");
+        }catch (SQLException e){
+            System.out.println("ERROR al crear la tabla departamento" + e.getMessage());
+        }
+    }
+
+    public void crearTablaEmpleado() {
+        String sql = "CREATE TABLE IF NOT EXISTS empleado (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, salario DOUBLE, nacido LOCALDATE, departamento INTEGER, FOREIGN KEY (departamento) REFERENCES departamento(id))";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.executeUpdate();
+            System.out.println("Tabla empleado creada correctamente.");
+        } catch (SQLException e) {
+            System.err.println("Error al crear tabla empleado: " + e.getMessage());
+        }
+    }
+
+    private void agregarClaveForaneaEmpleado() {
+        String sql = "ALTER TABLE empleado ADD FOREIGN KEY (departamento) REFERENCES departamento(id)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.executeUpdate();
+            System.out.println("Clave foránea en empleado agregada correctamente.");
+        } catch (SQLException e) {
+            System.err.println("Error al agregar clave foránea en empleado: " + e.getMessage());
+        }
+    }
+
     public void insertarDepartamento(Departamento departamento) {
         String sql = "INSERT INTO departamento (nombre, jefe) VALUES (?, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
             preparedStatement.setString(1, departamento.getNombre());
             if (departamento.getJefe() != null) {
                 preparedStatement.setInt(2, departamento.getJefe().getId());
             } else {
                 preparedStatement.setNull(2, java.sql.Types.INTEGER);
             }
+
             preparedStatement.executeUpdate();
             System.out.println("Departamento insertado correctamente.");
+
         } catch (SQLException e) {
             System.err.println("Error al insertar departamento: " + e.getMessage());
         }
     }
 
+
     public void insertarEmpleado(Empleado empleado) {
         String sql = "INSERT INTO empleado (nombre, salario, nacido, departamento) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, empleado.getNombre());
             preparedStatement.setDouble(2, empleado.getSalario());
             preparedStatement.setObject(3, empleado.getNacido());
