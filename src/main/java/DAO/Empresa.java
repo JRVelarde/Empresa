@@ -3,46 +3,34 @@ package DAO;
 import MODELO.Departamento;
 import MODELO.Empleado;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Empresa {
-    private Connection connection;
+    private static Connection connection;
 
     public Empresa(Connection connection) {
         this.connection = connection;
     }
 
-    public void crearTablaDepartamento(Departamento departamento){
+    public void crearTablaDepartamento() {
         String sql = "CREATE TABLE IF NOT EXISTS departamento (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, jefe INTEGER)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.executeUpdate();
             System.out.println("Tabla creada correctamente");
-        }catch (SQLException e){
+        } catch (SQLException e) {
             System.out.println("ERROR al crear la tabla departamento" + e.getMessage());
         }
     }
 
     public void crearTablaEmpleado() {
-        String sql = "CREATE TABLE IF NOT EXISTS empleado (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, salario DOUBLE, nacido LOCALDATE, departamento INTEGER, FOREIGN KEY (departamento) REFERENCES departamento(id))";
+        String sql = "CREATE TABLE IF NOT EXISTS empleado (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, salario DOUBLE, nacido LOCALDATE, departamento INTEGER)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.executeUpdate();
             System.out.println("Tabla empleado creada correctamente.");
         } catch (SQLException e) {
             System.err.println("Error al crear tabla empleado: " + e.getMessage());
-        }
-    }
-
-    private void agregarClaveForaneaEmpleado() {
-        String sql = "ALTER TABLE empleado ADD FOREIGN KEY (departamento) REFERENCES departamento(id)";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.executeUpdate();
-            System.out.println("Clave foránea en empleado agregada correctamente.");
-        } catch (SQLException e) {
-            System.err.println("Error al agregar clave foránea en empleado: " + e.getMessage());
         }
     }
 
@@ -191,5 +179,85 @@ public class Empresa {
             System.err.println("Error al actualizar empleados del departamento a NULL: " + e.getMessage());
         }
     }
-}
 
+    public static void visualizarTablaDepartamento(Connection connection) {
+        String sql = "SELECT * FROM departamento";
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            System.out.println("ID\tNombre\tJefe");
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String nombre = resultSet.getString("nombre");
+                int jefe = resultSet.getInt("jefe");
+                System.out.println(id + "\t" + nombre + "\t" + jefe);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al visualizar tabla departamento: " + e.getMessage());
+        }
+    }
+
+    public static void visualizarTablaEmpleado(Connection connection) {
+        String sql = "SELECT * FROM empleado";
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+            System.out.println("ID\tNombre\tSalario\tNacido\tDepartamento");
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String nombre = resultSet.getString("nombre");
+                double salario = resultSet.getDouble("salario");
+                String nacido = resultSet.getString("nacido");
+                int departamento = resultSet.getInt("departamento");
+                System.out.println(id + "\t" + nombre + "\t" + salario + "\t" + nacido + "\t" + departamento);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al visualizar tabla empleado: " + e.getMessage());
+        }
+    }
+
+    public static Empleado buscarEmpleadoPorId(int idEmpleado) {
+        String sql = "SELECT * FROM empleado WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, idEmpleado);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    Empleado empleado = new Empleado();
+                    empleado.setId(resultSet.getInt("id"));
+                    empleado.setNombre(resultSet.getString("nombre"));
+                    empleado.setSalario(resultSet.getDouble("salario"));
+                    empleado.setNacido(resultSet.getObject("nacido", LocalDate.class));
+                    return empleado;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar empleado por ID: " + e.getMessage());
+        }
+
+        return null;
+    }
+    public static Departamento buscarDepartamentoPorId(int idDepartamento) {
+        String sql = "SELECT id, nombre, jefe FROM departamento WHERE id = ?";
+        Departamento departamento = null;
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, idDepartamento);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String nombre = resultSet.getString("nombre");
+                    int jefeId = resultSet.getInt("jefe");
+
+                    Empleado jefeDepartamento = buscarEmpleadoPorId(jefeId);
+
+                    departamento = new Departamento(id, nombre, jefeDepartamento);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar departamento por ID: " + e.getMessage());
+        }
+
+        return departamento;
+    }
+
+}
