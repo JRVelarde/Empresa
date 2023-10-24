@@ -47,7 +47,7 @@ public class Menu {
                     empresa.insertarDepartamento(departamento);
                     System.out.println("Conoces el id del empleado?");
                     String Resultado = scanner.next();
-                    if(Resultado.toLowerCase()=="si" || Resultado.toLowerCase()=="sí" ){
+                    if(Resultado.toLowerCase().equals("si") || Resultado.toLowerCase().equals("sí") || Resultado.toLowerCase().equals("s")){
                         System.out.println("Dime el ID del empleado");
                         int idEmpleado = scanner.nextInt();
                         Empleado empleado = new Empleado();
@@ -85,12 +85,12 @@ public class Menu {
                     scanner.nextLine();
                     String nuevoNombreDepartamento = scanner.nextLine();
 
-                    System.out.print("¿Desea actualizar el jefe del departamento? (S/N): ");
+                    System.out.print("¿Desea actualizar el jefe del departamento? (Si/No): ");
                     String actualizarJefe = scanner.nextLine();
                     Empleado empleado1 =null;
                     int idJefeDepartamento = -1;
 
-                    if (actualizarJefe.toLowerCase()=="si" || actualizarJefe.toLowerCase()=="sí" ) {
+                    if (actualizarJefe.toLowerCase().equals("si") || actualizarJefe.toLowerCase().equals("sí")|| actualizarJefe.toLowerCase().equals("s")) {
                         System.out.print("Ingrese el ID del nuevo jefe del departamento: ");
                         idJefeDepartamento = scanner.nextInt();
                         empleado1 = Empresa.buscarEmpleadoPorId(idJefeDepartamento);
@@ -120,7 +120,7 @@ public class Menu {
                     Departamento departamento1 = null;
                     int idDepartamentoEmpleado = -1;
 
-                    if (actualizarDepartamento.toLowerCase()=="si" || actualizarDepartamento.toLowerCase()=="sí" ) {
+                    if (actualizarDepartamento.toLowerCase().equals("si") || actualizarDepartamento.toLowerCase().equals("sí") || actualizarDepartamento.toLowerCase().equals("s")) {
                         System.out.print("Ingrese el ID del nuevo departamento del empleado: ");
                         idDepartamentoEmpleado = scanner.nextInt();
                         departamento1 = Empresa.buscarDepartamentoPorId(idDepartamentoEmpleado);
