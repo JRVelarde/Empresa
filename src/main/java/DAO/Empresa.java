@@ -13,9 +13,14 @@ public class Empresa {
     public Empresa(Connection connection) {
         this.connection = connection;
     }
-
+    String tipodb= ConexionDB.typeDB;
     public void crearTablaDepartamento() {
-        String sql = "CREATE TABLE IF NOT EXISTS departamento (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, jefe INTEGER)";
+        String sql="";
+        if(tipodb.equals("sqlite")){
+            sql="CREATE TABLE IF NOT EXISTS departamento (id INT PRIMARY KEY AUTOINCREMENT, nombre VARCHAR(255), jefe INT)";
+        }else{
+            sql="CREATE TABLE IF NOT EXISTS departamento (id INT PRIMARY KEY AUTO_INCREMENT, nombre VARCHAR(255), jefe INT)";
+        }
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.executeUpdate();
             System.out.println("Tabla creada correctamente");
@@ -25,7 +30,12 @@ public class Empresa {
     }
 
     public void crearTablaEmpleado() {
-        String sql = "CREATE TABLE IF NOT EXISTS empleado (id INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT, salario DOUBLE, nacido LOCALDATE, departamento INTEGER)";
+        String sql="";
+        if(tipodb.equals("sqlite")){
+            sql="CREATE TABLE IF NOT EXISTS empleado (id INT PRIMARY KEY AUTOINCREMENT, nombre VARCHAR(255), salario DECIMAL(10,2), nacido DATE, departamento INT)";
+        }else{
+            sql="CREATE TABLE IF NOT EXISTS empleado (id INT PRIMARY KEY AUTO_INCREMENT, nombre VARCHAR(255), salario DECIMAL(10,2), nacido DATE, departamento INT)";
+        }
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.executeUpdate();
             System.out.println("Tabla empleado creada correctamente.");
