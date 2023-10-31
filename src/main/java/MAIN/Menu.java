@@ -44,15 +44,15 @@ public class Menu {
                     String nombreDepartamento = scanner.next();
                     Departamento departamento = new Departamento();
                     departamento.setNombre(nombreDepartamento);
-                    empresa.insertarDepartamento(departamento);
                     System.out.println("Conoces el id del empleado?");
                     String Resultado = scanner.next();
                     if(Resultado.toLowerCase().equals("si") || Resultado.toLowerCase().equals("sí") || Resultado.toLowerCase().equals("s")){
                         System.out.println("Dime el ID del empleado");
                         int idEmpleado = scanner.nextInt();
-                        Empleado empleado = new Empleado();
-                        empleado = Empresa.buscarEmpleadoPorId(idEmpleado);
-                        empresa.insertarEmpleado(empleado);
+                        Empleado jefeEmpleado = new Empleado();
+                        jefeEmpleado.setId(idEmpleado);
+                        departamento.setJefe(jefeEmpleado);
+                        empresa.insertarDepartamento(departamento);
                     }
                     break;
                 case 2:
